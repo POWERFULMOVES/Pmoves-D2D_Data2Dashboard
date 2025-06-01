@@ -11,7 +11,7 @@ from dotenv import load_dotenv
 # Make sure your .env has OPENAI_API_KEY=<your-key>
 load_dotenv()
 
-from langchain_openai import ChatOpenAI
+from agents.llm_factory import get_llm
 from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
 from langchain_core.runnables import RunnablePassthrough
 

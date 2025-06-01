@@ -12,7 +12,7 @@ from .utils import serialize_memory
 # Load environment variables from .env file
 load_dotenv()
 
-from langchain_openai import ChatOpenAI
+from .llm_factory import get_llm
 from langchain_core.prompts import PromptTemplate
 from langchain_core.runnables import RunnablePassthrough
 from langgraph.graph import StateGraph, START, END
