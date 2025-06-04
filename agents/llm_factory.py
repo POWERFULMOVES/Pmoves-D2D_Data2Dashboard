@@ -4,6 +4,7 @@ from langchain_openai import ChatOpenAI
 # For example:
 from langchain_community.llms import HuggingFacePipeline
 from transformers import pipeline
+import torch
 from langchain_community.chat_models import ChatOllama
 from langchain_google_genai import ChatGoogleGenerativeAI
 
@@ -45,15 +46,32 @@ def get_llm(backend: str, model_name: str, **kwargs):
             **kwargs,
         )
     elif backend == 'huggingface':
-        # Uses HuggingFace's `transformers` pipeline to load a local or hub model.
-        # You can override the `pipeline_task` or provide additional
-        # `pipeline_kwargs` via **kwargs. For example:
-        #   get_llm('huggingface', 'mistralai/Mistral-7B-Instruct-v0.2',
-        #          pipeline_task='text-generation',
-        #          pipeline_kwargs={'max_new_tokens': 256})
+        # Load a Hugging Face model locally. Models are downloaded to a
+        # configurable directory (defaults to ./models/<model_name>) and will
+        # run on CUDA if available.
+        #
+        # You can override the pipeline task or provide additional pipeline
+        # arguments via **kwargs, e.g.:
+        #   get_llm(
+        #       'huggingface',
+        #       'mistralai/Mistral-7B-Instruct-v0.2',
+        #       pipeline_task='text-generation',
+        #       pipeline_kwargs={'max_new_tokens': 256},
+        #   )
+
         pipeline_task = kwargs.pop("pipeline_task", "text-generation")
         pipeline_kwargs = kwargs.pop("pipeline_kwargs", {})
-        pipe = pipeline(pipeline_task, model=model_name, **pipeline_kwargs)
+
+        model_dir_base = kwargs.pop("model_dir", os.getenv("HF_MODEL_DIR", "models"))
+        model_dir = os.path.join(model_dir_base, model_name.replace("/", "_"))
+
+        pipeline_kwargs.setdefault("device", 0 if torch.cuda.is_available() else -1)
+        pipe = pipeline(
+            pipeline_task,
+            model=model_name,
+            cache_dir=model_dir,
+            **pipeline_kwargs,
+        )
         return HuggingFacePipeline(pipeline=pipe, **kwargs)
     elif backend == 'google-edge':
         # Uses Google Generative AI (Gemini) via `langchain-google-genai`.

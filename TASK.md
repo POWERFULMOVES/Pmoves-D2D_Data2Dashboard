@@ -11,6 +11,8 @@ Adapt the project to be compatible with multiple LLM backends (Ollama, LM Studio
 - Added basic implementation for Ollama and LM Studio in `llm_factory.py`.
 - Added placeholder for Hugging Face and Google Edge in `llm_factory.py`.
 - Implemented Hugging Face backend in `llm_factory.py`.
+- Enhanced Hugging Face backend to download models to a configurable local
+  directory and automatically use CUDA when available.
 - Implemented Google Edge backend in `llm_factory.py`.
 
 ## Next Steps for Implementation
