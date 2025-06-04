@@ -12,7 +12,7 @@ from .utils import serialize_memory
 # Load environment variables from .env file
 load_dotenv()
 
-from .llm_factory import get_llm
+from config import get_default_llm
 from langchain_core.prompts import PromptTemplate
 from langchain_core.runnables import RunnablePassthrough
 from langgraph.graph import StateGraph, START, END
@@ -30,14 +30,9 @@ class NumpyEncoder(json.JSONEncoder):
             return obj.tolist()
         return super(NumpyEncoder, self).default(obj)
 
-LLM_BACKEND = os.getenv("LLM_BACKEND", "openai")
-LLM_MODEL = os.getenv("LLM_MODEL", "gpt-4o")
-llm = get_llm(
-    backend=LLM_BACKEND,
-    model_name=LLM_MODEL,
-    temperature=0,
-    model_kwargs={"response_format": {"type": "json_object"}},
-).with_config({"run_name": f"{LLM_BACKEND}-{LLM_MODEL}"})
+llm = get_default_llm(
+    model_kwargs={"response_format": {"type": "json_object"}}
+).with_config({"run_name": "default-llm"})
 
 ############################################################
 # 1. LLM‑assisted DataProfiler                             #

@@ -13,13 +13,14 @@ Adapt the project to be compatible with multiple LLM backends (Ollama, LM Studio
 - Implemented Hugging Face backend in `llm_factory.py`.
 - Implemented Google Edge backend in `llm_factory.py`.
 - Converted remaining agent files (`d2insight_gpt4o.py`, `d2insight_agent_sys.py`) to use `llm_factory` and environment variables.
+- Added `config.yaml` and `config.py` to provide a unified configuration system with environment-variable overrides.
+- Enhanced `llm_factory.get_llm` to accept API keys and base URLs, addressing backend-specific differences.
+- Updated agent files to use `config.get_default_llm` for consistent configuration handling.
 
 ## Next Steps for Implementation
 
-1.  **Handle API Differences:** Address variations in API calls, response formats, and capabilities among the different backends. This may involve adding abstraction layers or conditional logic.
-2.  **Enhance Configuration:** Implement a more robust configuration system (e.g., using a config file like `config.yaml` or `settings.py`) to manage LLM settings, including backend, model name, API keys, and any backend-specific parameters.
-3.  **Explore Ollama "Thinking Models":** Investigate how to leverage Ollama's "thinking models" feature, if relevant to the agent's workflow. This might involve specific prompting strategies or model configurations when using the Ollama backend.
-4.  **Comprehensive Testing:** Conduct thorough testing of the project with each implemented backend to ensure correct functionality and performance.
+1.  **Explore Ollama "Thinking Models":** Investigate how to leverage Ollama's "thinking models" feature, if relevant to the agent's workflow. This might involve specific prompting strategies or model configurations when using the Ollama backend.
+2.  **Comprehensive Testing:** Conduct thorough testing of the project with each implemented backend to ensure correct functionality and performance.
 
 ## Instructions for the Next Agent
 

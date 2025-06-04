@@ -27,19 +27,23 @@ def get_llm(backend: str, model_name: str, **kwargs):
     load_dotenv()
 
     if backend == 'openai':
-        # Requires OPENAI_API_KEY environment variable set
-        return ChatOpenAI(model=model_name, **kwargs)
+        # Requires OPENAI_API_KEY environment variable set unless provided
+        api_key = kwargs.pop("openai_api_key", os.getenv("OPENAI_API_KEY"))
+        return ChatOpenAI(model=model_name, api_key=api_key, **kwargs)
     elif backend == 'ollama':
         # Requires Ollama to be installed and running, and the specified model pulled (e.g., 'ollama pull llama2').
-        # Ensure the OLLAMA_HOST environment variable is set if Ollama is not running on the default host (e.g., OLLAMA_HOST=http://192.168.1.100:11434).
-        return ChatOllama(model=model_name, **kwargs)
+        # You can customise the base_url via OLLAMA_HOST or `base_url` kwarg.
+        base_url = kwargs.pop("base_url", os.getenv("OLLAMA_HOST"))
+        return ChatOllama(model=model_name, base_url=base_url, **kwargs)
     elif backend == 'lmstudio':
         # Example implementation for LM Studio (OpenAI-compatible API)
         # Requires LM Studio to be running with an OpenAI-compatible server.
         # The model_name should match the "Model" shown in LM Studio's server tab (often "local-model").
         # You can override the API URL with the LMSTUDIO_API_URL environment variable if not using localhost:1234.
+        # LM Studio exposes an OpenAI-compatible API. Override the URL if needed.
+        base_url = kwargs.pop("base_url", os.getenv("LMSTUDIO_API_URL", "http://localhost:1234/v1"))
         return ChatOpenAI(
-            base_url=os.getenv("LMSTUDIO_API_URL", "http://localhost:1234/v1"),
+            base_url=base_url,
             api_key="not-needed",
             model=model_name,
             **kwargs,
@@ -53,7 +57,8 @@ def get_llm(backend: str, model_name: str, **kwargs):
         #          pipeline_kwargs={'max_new_tokens': 256})
         pipeline_task = kwargs.pop("pipeline_task", "text-generation")
         pipeline_kwargs = kwargs.pop("pipeline_kwargs", {})
-        pipe = pipeline(pipeline_task, model=model_name, **pipeline_kwargs)
+        hf_token = kwargs.pop("hf_token", os.getenv("HF_TOKEN"))
+        pipe = pipeline(pipeline_task, model=model_name, token=hf_token, **pipeline_kwargs)
         return HuggingFacePipeline(pipeline=pipe, **kwargs)
     elif backend == 'google-edge':
         # Uses Google Generative AI (Gemini) via `langchain-google-genai`.
@@ -61,7 +66,8 @@ def get_llm(backend: str, model_name: str, **kwargs):
         # `google_api_key` in **kwargs.
         # Example:
         #   get_llm('google-edge', 'gemini-pro')
-        return ChatGoogleGenerativeAI(model=model_name, **kwargs)
+        api_key = kwargs.pop("google_api_key", os.getenv("GOOGLE_API_KEY"))
+        return ChatGoogleGenerativeAI(model=model_name, google_api_key=api_key, **kwargs)
     else:
         raise ValueError(f"Unsupported backend: {backend}")
 
