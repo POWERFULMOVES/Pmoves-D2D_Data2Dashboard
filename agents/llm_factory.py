@@ -5,7 +5,7 @@ from langchain_openai import ChatOpenAI
 from langchain_community.llms import HuggingFacePipeline
 from transformers import pipeline
 from langchain_community.chat_models import ChatOllama
-# from some_google_edge_library import GoogleEdgeChatModel
+from langchain_google_genai import ChatGoogleGenerativeAI
 
 def get_llm(backend: str, model_name: str, **kwargs):
     """
@@ -32,37 +32,37 @@ def get_llm(backend: str, model_name: str, **kwargs):
     elif backend == 'ollama':
         # Requires Ollama to be installed and running, and the specified model pulled (e.g., 'ollama pull llama2').
         # Ensure the OLLAMA_HOST environment variable is set if Ollama is not running on the default host (e.g., OLLAMA_HOST=http://192.168.1.100:11434).
- return ChatOllama(model=model_name, **kwargs)
+        return ChatOllama(model=model_name, **kwargs)
     elif backend == 'lmstudio':
-        # Example implementation for LM Studio (often uses OpenAI-compatible API)
-        # from langchain_openai import ChatOpenAI
-        # return ChatOpenAI(
-        #     base_url="http://localhost:1234/v1",  # Replace with your LM Studio API URL
-        #     api_key="not-needed", # API key is often not needed for local models
-        #     model=model_name,
-        #     **kwargs
-        # )
-        # Requires LM Studio to be installed and running with an OpenAI-compatible server enabled.
-        # The model_name parameter in get_llm should match the 'Model' name shown in LM Studio's server tab (often 'local-model').
- # You can set the LM Studio API URL using the LMSTUDIO_API_URL environment variable if it's not the default localhost:1234.
- return ChatOpenAI(base_url=os.getenv("LMSTUDIO_API_URL", "http://localhost:1234/v1"), api_key="not-needed", model=model_name, **kwargs)
+        # Example implementation for LM Studio (OpenAI-compatible API)
+        # Requires LM Studio to be running with an OpenAI-compatible server.
+        # The model_name should match the "Model" shown in LM Studio's server tab (often "local-model").
+        # You can override the API URL with the LMSTUDIO_API_URL environment variable if not using localhost:1234.
+        return ChatOpenAI(
+            base_url=os.getenv("LMSTUDIO_API_URL", "http://localhost:1234/v1"),
+            api_key="not-needed",
+            model=model_name,
+            **kwargs,
+        )
     elif backend == 'huggingface':
-        # from langchain_community.llms import HuggingFacePipeline
-        # from transformers import pipeline
-        # pipe = pipeline("text-generation", model=model_name) # Or "summarization", etc.
-        # return HuggingFacePipeline(pipeline=pipe, **kwargs)
-        # Requires the 'transformers' library and a compatible model.
-        # Ensure you have a Hugging Face model available locally or accessible.
- return HuggingFacePipeline(pipeline=pipeline("text-generation", model=model_name), **kwargs)
+        # Uses HuggingFace's `transformers` pipeline to load a local or hub model.
+        # You can override the `pipeline_task` or provide additional
+        # `pipeline_kwargs` via **kwargs. For example:
+        #   get_llm('huggingface', 'mistralai/Mistral-7B-Instruct-v0.2',
+        #          pipeline_task='text-generation',
+        #          pipeline_kwargs={'max_new_tokens': 256})
+        pipeline_task = kwargs.pop("pipeline_task", "text-generation")
+        pipeline_kwargs = kwargs.pop("pipeline_kwargs", {})
+        pipe = pipeline(pipeline_task, model=model_name, **pipeline_kwargs)
+        return HuggingFacePipeline(pipeline=pipe, **kwargs)
     elif backend == 'google-edge':
-        # TODO: Implement Google Edge backend when a Langchain-compatible library is available.
-        # You will likely need to install a specific Google Cloud or Edge AI library.
-        # Authentication may be required (e.g., service account key or environment variables).
-        # from some_google_edge_library import GoogleEdgeChatModel
-        # return GoogleEdgeChatModel(
-        #     model=model_name,
-        #     **kwargs)
-        return None # Placeholder
+        # Uses Google Generative AI (Gemini) via `langchain-google-genai`.
+        # Requires a valid GOOGLE_API_KEY environment variable or pass
+        # `google_api_key` explicitly via **kwargs.
+        # Example:
+        #   get_llm('google-edge', 'gemini-pro')
+        google_api_key = kwargs.pop("google_api_key", os.getenv("GOOGLE_API_KEY"))
+        return ChatGoogleGenerativeAI(model=model_name, google_api_key=google_api_key, **kwargs)
     else:
         raise ValueError(f"Unsupported backend: {backend}")
 
