@@ -17,6 +17,11 @@ def load_config(path: str = "config.yaml") -> dict:
     llm.setdefault('google_api_key', os.getenv('GOOGLE_API_KEY'))
     llm.setdefault('hf_token', os.getenv('HF_TOKEN'))
     llm.setdefault('ollama_host', os.getenv('OLLAMA_HOST'))
+    think_env = os.getenv('OLLAMA_THINK')
+    if think_env is not None:
+        llm['think'] = think_env.lower() in ('1', 'true', 'yes')
+    else:
+        llm.setdefault('think', False)
     llm.setdefault('lmstudio_url', os.getenv('LMSTUDIO_API_URL', 'http://localhost:1234/v1'))
     return data
 
@@ -33,6 +38,8 @@ def get_default_llm(**kwargs):
     }
     if backend == 'lmstudio':
         options['base_url'] = llm_cfg.get('lmstudio_url')
-    if backend == 'ollama' and llm_cfg.get('ollama_host'):
-        options['base_url'] = llm_cfg['ollama_host']
+    if backend == 'ollama':
+        if llm_cfg.get('ollama_host'):
+            options['base_url'] = llm_cfg['ollama_host']
+        options['think'] = llm_cfg.get('think')
     return get_llm(backend=backend, model_name=model, temperature=llm_cfg.get('temperature', 0), **{**options, **kwargs})

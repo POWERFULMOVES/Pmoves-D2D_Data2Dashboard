@@ -4,7 +4,7 @@ from langchain_openai import ChatOpenAI
 # For example:
 from langchain_community.llms import HuggingFacePipeline
 from transformers import pipeline
-from langchain_community.chat_models import ChatOllama
+from .ollama_thinking import ChatOllamaThinking
 from langchain_google_genai import ChatGoogleGenerativeAI
 
 def get_llm(backend: str, model_name: str, **kwargs):
@@ -33,8 +33,10 @@ def get_llm(backend: str, model_name: str, **kwargs):
     elif backend == 'ollama':
         # Requires Ollama to be installed and running, and the specified model pulled (e.g., 'ollama pull llama2').
         # You can customise the base_url via OLLAMA_HOST or `base_url` kwarg.
+        # Optionally enable thinking mode via the `think` kwarg or OLLAMA_THINK env variable.
         base_url = kwargs.pop("base_url", os.getenv("OLLAMA_HOST"))
-        return ChatOllama(model=model_name, base_url=base_url, **kwargs)
+        think = kwargs.pop("think", None)
+        return ChatOllamaThinking(model=model_name, base_url=base_url, think=think, **kwargs)
     elif backend == 'lmstudio':
         # Example implementation for LM Studio (OpenAI-compatible API)
         # Requires LM Studio to be running with an OpenAI-compatible server.
