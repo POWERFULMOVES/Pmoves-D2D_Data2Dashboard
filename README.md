@@ -65,6 +65,14 @@ from agents.insight2dashboard_tot import generate_analysis
 thoughts = generate_analysis('dataset/Finance_survey_data.csv', 'exp_result/exp03/analysis.json')
 print(thoughts)
 ```
+Alternatively, use the command-line interface:
+
+```bash
+python -m scripts.agent_cli simple dataset/Finance_survey_data.csv "Give me a summary"
+python -m scripts.agent_cli domain dataset/Finance_survey_data.csv
+python -m scripts.agent_cli tot dataset/Finance_survey_data.csv exp_result/exp03/analysis.json
+```
+
 
 ## Next steps
 
