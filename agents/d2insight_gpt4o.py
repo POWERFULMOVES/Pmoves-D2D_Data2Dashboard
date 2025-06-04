@@ -38,15 +38,17 @@ prompt = ChatPromptTemplate.from_messages(
 )
 
 # --- 2.2  Chat model --------------------------------------
-llm = ChatOpenAI(
-    model_name="gpt-4o", 
+LLM_BACKEND = os.getenv("LLM_BACKEND", "openai")
+LLM_MODEL = os.getenv("LLM_MODEL", "gpt-4o")
+llm = get_llm(
+    backend=LLM_BACKEND,
+    model_name=LLM_MODEL,
     temperature=0,
     model_kwargs={"response_format": {"type": "json_object"}},
-    openai_api_key=os.getenv("OPENAI_API_KEY")
-)
+).with_config({"run_name": f"{LLM_BACKEND}-{LLM_MODEL}"})
 
 # --- 2.3  Chain object ------------------------------------
-chain = prompt | llm  # (Prompt → ChatOpenAI)
+chain = prompt | llm  # (Prompt → Chat Model)
 
 ############################################################
 # 3. Convenience wrapper                                   #
