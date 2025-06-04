@@ -6,4 +6,5 @@ llm:
   google_api_key: ""
   hf_token: ""
   ollama_host: ""
+  think: false
   lmstudio_url: "http://localhost:1234/v1"
