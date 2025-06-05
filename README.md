@@ -41,6 +41,49 @@ OLLAMA_HOST=http://...
 
 You can override the backend and model with `LLM_BACKEND` and `LLM_MODEL`.
 
+## Configuring LLM backends
+
+The `llm_factory.get_llm` helper and `config.get_default_llm` function allow
+switching between different chat model providers. Set the variables below (or
+edit `config.yaml`) before running the examples.
+
+### Ollama
+
+```bash
+export LLM_BACKEND=ollama
+export LLM_MODEL=llama3  # or any model pulled with `ollama pull`
+export OLLAMA_HOST=http://localhost:11434  # adjust if remote
+# Optional thinking mode
+export OLLAMA_THINK=1
+```
+
+### LM Studio
+
+```bash
+export LLM_BACKEND=lmstudio
+export LLM_MODEL=local-model  # name shown in LM Studio "Model" column
+export LMSTUDIO_API_URL=http://localhost:1234/v1
+```
+
+### Hugging Face
+
+```bash
+export LLM_BACKEND=huggingface
+export LLM_MODEL=mistralai/Mistral-7B-Instruct-v0.2
+export HF_TOKEN=hf_...  # token for private models if required
+```
+
+### Google Edge / Gemini
+
+```bash
+export LLM_BACKEND=google-edge
+export LLM_MODEL=gemini-pro
+export GOOGLE_API_KEY=your-key
+```
+
+After configuring one of the backends above, run the examples below and the
+agents will use the selected LLM.
+
 ## Usage examples
 
 Analyse a CSV with the simple GPT‑4o chain:
