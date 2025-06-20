@@ -114,3 +114,4 @@ print(thoughts)
 - Explore the notebooks in `notebooks/` to see previous experiment outputs.
 - Review `TASK.md` for the adaptation plan and outstanding work.
 - Consider adding automated tests and streamlining dependency management.
+
